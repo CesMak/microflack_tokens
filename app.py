@@ -24,6 +24,7 @@ def verify_password(nickname, password):
     if not nickname or not password:
         return False
     r = requests.get('/api/users/me', auth=(nickname, password))
+    print(r)
     if r.status_code != 200:
         return False
     g.current_user = r.json()
@@ -53,7 +54,7 @@ def new_token():
 def revoke_token():
     """
     Revoke a user token.
-    This endpoint is requires a valid user token.
+    This endpoint requires a valid user token.
     """
     # get the token from the Authorization header
     token = request.headers['Authorization'].split()[1]
