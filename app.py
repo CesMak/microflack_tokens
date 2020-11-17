@@ -2,12 +2,13 @@ import os
 import time
 
 from flask import Flask, jsonify, g, request
-from flask_httpauth import HTTPBasicAuth
+from flask_httpauth import HTTPBasicAuth  # docs see: https://flask-httpauth.readthedocs.io/en/latest/
 
 import config
 from microflack_common.auth import generate_token, token_auth
 from microflack_common.etcd import etcd_client
 from microflack_common import requests
+from requests.exceptions import HTTPError
 
 app = Flask(__name__)
 config_name = os.environ.get('FLASK_CONFIG', 'dev')
@@ -15,16 +16,19 @@ app.config.from_object(getattr(config, config_name.title() + 'Config'))
 
 basic_auth = HTTPBasicAuth()
 
-
 @basic_auth.verify_password
 def verify_password(nickname, password):
     """Password verification callback.
     Verification is done by sending a request to the users service.
     """
+    print("inside tokens verify_password")
     if not nickname or not password:
         return False
-    r = requests.get('/api/users/me', auth=(nickname, password))
-    print(r)
+    try:
+        r = requests.get('/api/users/me', auth=(nickname, password))
+    except HTTPError as e:
+        print(e)
+        return False
     if r.status_code != 200:
         return False
     g.current_user = r.json()
@@ -44,8 +48,9 @@ def password_error():
 def new_token():
     """
     Generate an access token for the user.
-    This endpoint is requires basic auth with nickname and password.
+    This endpoint requires basic auth with nickname and password.
     """
+    #print("Inside new_token POST in tokens ")
     return jsonify({'token': generate_token(g.current_user['id'])})
 
 
