@@ -8,7 +8,7 @@ import config
 from microflack_common.auth import generate_token, token_auth
 from microflack_common.etcd import etcd_client
 from microflack_common import requests
-from requests.exceptions import HTTPError
+#from requests.exceptions import HTTPError
 
 app = Flask(__name__)
 config_name = os.environ.get('FLASK_CONFIG', 'dev')
@@ -24,11 +24,8 @@ def verify_password(nickname, password):
     print("inside tokens verify_password")
     if not nickname or not password:
         return False
-    try:
-        r = requests.get('/api/users/me', auth=(nickname, password))
-    except HTTPError as e:
-        print(e)
-        return False
+    #following line throws an HTTPError in case of raise_for_status=True
+    r = requests.get('/api/users/me', auth=(nickname, password))
     if r.status_code != 200:
         return False
     g.current_user = r.json()
