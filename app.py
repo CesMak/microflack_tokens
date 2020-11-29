@@ -21,7 +21,6 @@ def verify_password(nickname, password):
     """Password verification callback.
     Verification is done by sending a request to the users service.
     """
-    print("inside tokens verify_password")
     if not nickname or not password:
         return False
     #following line throws an HTTPError in case of raise_for_status=True
@@ -47,7 +46,6 @@ def new_token():
     Generate an access token for the user.
     This endpoint requires basic auth with nickname and password.
     """
-    #print("Inside new_token POST in tokens ")
     return jsonify({'token': generate_token(g.current_user['id'])})
 
 
